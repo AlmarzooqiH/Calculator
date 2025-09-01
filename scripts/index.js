@@ -4,7 +4,17 @@ let firstVal = null;
 let secondVal = null;
 let selectedOperation = null;
 let calculated = null;
-const operations = ["+", "-", "*", "/"];
+let decimalFlag = null;
+const mathOperations = ["+", "-", "*", "/", "="];
+const numbers =
+[
+    "0", "1", "2", "3", "4",
+    "5", "6", "7", "8", "9"
+];
+
+const specialCharacters = [".", "Enter", "Backspace", "Escape"];
+
+const everything = [...mathOperations, ...numbers, ...specialCharacters];
 
 //When chaning the result use the .textContent property instead of innetHTML.
 
@@ -16,6 +26,7 @@ function resetVariables(){
     secondVal = null;
     selectedOperation = null;
     calculated = null;
+    decimalFlag = null;
     resultElement.textContent = "0.0";
 }
 
@@ -53,14 +64,15 @@ document.addEventListener("keydown", (event) => {
         resetVariables();
         return ;
     } else if (event.key === "Backspace"){
-        if (resultElement.textContent.length <= 1){
+        if (resultElement.textContent.length == 0){
             resultElement.textContent = "0.0";
             return;
         }
         resultElement.textContent = resultElement.textContent.substring(0, resultElement.textContent.length - 1);
     }
-
-    if (operations.includes(event.key)){
+    if (!everything.includes(event.key))
+            return;
+    if (mathOperations.includes(event.key)){
         selectedOperation = event.key;
     }
 
@@ -80,10 +92,13 @@ document.addEventListener("keydown", (event) => {
             calculated = null;
             return ;
         }
-    if (resultElement.textContent === "0.0")
+    
+    if (event.key === ".")
+        decimalFlag = true;
+    if (!decimalFlag && (resultElement.textContent === "0.0"))
             resultElement.textContent = "";
     for (let i = 0; i < buttons.length; i++){
-        if ((buttons[i].textContent == event.key) && !(operations.includes(event.key) || event.key === "="))
+        if ((buttons[i].textContent == event.key) && !(mathOperations.includes(event.key) || event.key === "="))
             resultElement.textContent += event.key;
     }
 });
@@ -105,8 +120,9 @@ for (let i = 0; i < buttons.length; i++) {
             resultElement.textContent = resultElement.textContent.slice(0, -1);
             return;
         }
-
-        if (operations.includes(key)) {
+        if (!everything.includes(event.key))
+            return;
+        if (mathOperations.includes(key)) {
             selectedOperation = key;
         }
 
@@ -128,7 +144,7 @@ for (let i = 0; i < buttons.length; i++) {
             calculated = null;
             return ;
         }
-        if (!operations.includes(key) && key !== "=") {
+        if (!mathOperations.includes(key) && key !== "=") {
             if (resultElement.textContent === "0.0") resultElement.textContent = "";
             resultElement.textContent += key;
         }
