@@ -5,6 +5,7 @@ let secondVal = null;
 let selectedOperation = null;
 let calculated = null;
 let decimalFlag = null;
+let isEqualSymbol = null;
 const mathOperations = ["+", "-", "*", "/", "="];
 const numbers =
 [
@@ -12,7 +13,7 @@ const numbers =
     "5", "6", "7", "8", "9"
 ];
 
-const specialCharacters = [".", "Enter", "Backspace", "Escape"];
+const specialCharacters = [".", "Enter", "Backspace", "Escape", "+/-", "%","del"];
 
 const everything = [...mathOperations, ...numbers, ...specialCharacters];
 
@@ -27,6 +28,7 @@ function resetVariables(){
     selectedOperation = null;
     calculated = null;
     decimalFlag = null;
+    isEqualSymbol = null;
     resultElement.textContent = "0.0";
 }
 
@@ -51,13 +53,11 @@ function performCalculation() {
             result = firstVal / secondVal;
             break;
     }
-
     firstVal = null;
     resultElement.textContent = result;
     secondVal = null;
     selectedOperation = null;
 }
-
 
 document.addEventListener("keydown", (event) => {
     if (event.key === "Escape"){
@@ -111,29 +111,37 @@ for (let i = 0; i < buttons.length; i++) {
             resetVariables();
             return;
         }
-
-        if (buttons[i].value === "back") {
-            if (resultElement.textContent.length <= 1) {
+        if (buttons[i].value === "back" || key === "del") {
+            if (resultElement.textContent.length === 0){
                 resultElement.textContent = "0.0";
                 return;
-            }
+        }
             resultElement.textContent = resultElement.textContent.slice(0, -1);
             return;
         }
-        if (!everything.includes(event.key))
+        if (key === "+/-"){
+            let tmp = -1 * Number(resultElement.textContent);
+            resultElement.textContent = tmp;
             return;
-        if (mathOperations.includes(key)) {
+        }
+        if (key === "%"){
+            let tmp = Number(resultElement.textContent) / 100;
+            resultElement.textContent = tmp;
+            return;
+        }
+        if (mathOperations.includes(key) && key !== "=") {
             selectedOperation = key;
         }
-
+        if (key === "=")
+            isEqualSymbol = true;
         if (firstVal == null && selectedOperation != null) {
             firstVal = Number(resultElement.textContent);
-            resultElement.textContent = "0.0";
+            resultElement.textContent = "";
         } else if (secondVal == null && selectedOperation != null) {
             secondVal = Number(resultElement.textContent);
         }
 
-        if ((firstVal != null) && (secondVal != null) && (selectedOperation != null) && key === "=") {
+        if (isEqualSymbol && (firstVal != null) && (secondVal != null) && (selectedOperation != null) && key === "=") {
             secondVal = Number(resultElement.textContent);
             performCalculation();
             calculated = true;
@@ -144,8 +152,10 @@ for (let i = 0; i < buttons.length; i++) {
             calculated = null;
             return ;
         }
+
         if (!mathOperations.includes(key) && key !== "=") {
-            if (resultElement.textContent === "0.0") resultElement.textContent = "";
+            if (resultElement.textContent === "0.0" && key !== "0")
+                resultElement.textContent = "";
             resultElement.textContent += key;
         }
     });
